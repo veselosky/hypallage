@@ -17,4 +17,5 @@ Here is what is currently planned for this toolkit.
 Possible future directions for development:
 
 * A user agent customized for hypermedia APIs?
+* Tools for working with AtomPub?
 
