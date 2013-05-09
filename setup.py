@@ -37,6 +37,7 @@ setup(
     # could also include download_url, classifiers, etc.
 
     install_requires=[
+        'beautifulsoup4',
     ],
     tests_require=[
         'pytest',
