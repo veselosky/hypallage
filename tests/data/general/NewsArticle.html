@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Article http://iptc.org/std/rNews/2011-10-07#NewsArticle" itemid="urn:test:1234">
+    <head>
+        <title>How to Tie a Reef Knot</title>
+        <!-- Same name, two elements, should yield list of two values -->
+        <meta itemprop="interactionCount" content="UserTweets:1203"/>
+        <meta itemprop="interactionCount" content="UserComments:78"/>
+    </head>
+    <body>
+        <!-- Two names, should yield 2 props w/same value -->
+      <h1 itemprop="name headline">How to Tie a Reef Knot</h1>
+      by <span itemprop="creator">John Doe</span>
+
+      <!-- This style returning the body as an array of paragraphs is 
+      recommended in the rNews implementation guide. Personally I think this
+      is bad practice, but we have to expect someone is going to use it.
+      http://dev.iptc.org/Implementation-Guide-HTML-5-Microdata-in-IPTC-namespace
+      -->
+      <p itemprop="articleBody">Cras risus sapien, condimentum quis consequat
+      sit amet, porttitor eu nibh. Nam auctor metus in est varius et pretium
+      diam viverra. Vivamus sed felis odio, semper sollicitudin lacus. Integer
+      tellus nisl, dignissim sed dignissim et, ullamcorper nec nisl.
+      Pellentesque vestibulum accumsan ultricies. Fusce vestibulum ultrices
+      nunc, ac cursus urna aliquam vitae.  Etiam elementum, purus a luctus
+      egestas, ligula dui eleifend dolor, sed rutrum enim odio faucibus elit.
+      Nulla sollicitudin adipiscing dapibus.  Proin et odio id nulla commodo
+      sollicitudin ac id sapien. Maecenas sapien tellus, condimentum non
+      sagittis sit amet, dictum ultricies tortor. Morbi dapibus, mi et
+      consectetur tempus, massa purus tincidunt metus, vitae dapibus tortor leo
+      ultrices ligula. Vivamus pharetra fringilla dictum.  Proin sit amet
+      tellus erat, pulvinar consequat turpis.</p>
+
+      <p itemprop="articleBody">Nullam vel mattis lectus. Nullam arcu justo,
+      aliquet sit amet iaculis ac, viverra iaculis ligula. Vestibulum imperdiet
+      fermentum arcu, eget lacinia magna bibendum id. Nullam tellus lectus,
+      lobortis id molestie quis, fringilla in eros. Donec condimentum congue
+      nibh, et sodales turpis pellentesque sodales. Proin sit amet nisl diam,
+      id faucibus lorem. Maecenas odio justo, commodo a interdum a, euismod vel
+      tellus. Vestibulum eget arcu sapien. Donec purus mauris, iaculis nec
+      blandit et, tincidunt ut arcu. Morbi ligula justo, lacinia et ultrices
+      in, elementum at nulla. Etiam luctus elementum arcu, eget cursus odio
+      sodales vel.</p>
+
+      <p itemprop="articleBody">Praesent pharetra feugiat convallis.
+      Pellentesque dapibus enim in massa tempor suscipit id nec massa. Vivamus
+      non lorem justo. Nunc ligula lacus, porta eu accumsan mattis, rutrum a
+      eros. In hac habitasse platea dictumst. Mauris non lacus id enim suscipit
+      auctor. Nunc massa eros, tempor ac consectetur sed, malesuada a odio.
+      Mauris eu nulla nunc, vitae vehicula leo. Duis volutpat consectetur
+      libero, nec commodo ante aliquam ut. Fusce commodo risus vitae libero
+      sollicitudin sollicitudin.</p>
+
+    </body>
+</html>
