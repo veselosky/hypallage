@@ -1,6 +1,9 @@
 """
 .. module hypallage.microdata
 """
+# NOTE The SPEC for HTML5 microdata lives at
+# http://www.whatwg.org/specs/web-apps/current-work/multipage/microdata.html
+# To resolve URLs in comments below, substitute this URL for SPEC.
 
 import bs4
 from bs4 import BeautifulSoup as bs
@@ -37,7 +40,7 @@ class Extractor(object):
     def is_itemprop(self, node):
         return node.get('itemprop') is not None
 
-# http://www.whatwg.org/specs/web-apps/current-work/multipage/microdata.html#extracting-json  # noqa
+    # See SPEC#extracting-json
     def _extract_items(self):
         itemnodes = self.document.find_all(itemscope=True, itemprop=False)
         if not itemnodes:
@@ -47,7 +50,7 @@ class Extractor(object):
             items.append(self._extract_item(node))
         return items
 
-# http://www.whatwg.org/specs/web-apps/current-work/multipage/microdata.html#get-the-object  # noqa
+    # See SPEC#get-the-object
     def _extract_item(self, itemnode, memory=[]):
         memory.append(itemnode)
         item = {}
@@ -73,13 +76,17 @@ class Extractor(object):
                 nodelist.extend(self._extract_propertynodes(node, memory))
             # TODO SORT nodelist HERE
 
+        # NOTE Property values are always stored as arrays, per SPEC#json
         properties = {}
         for node in nodelist:
-            # FIXME itemprop can be a list!
-            properties[node['itemprop']] = self._extract_property_value(node)
+            props = node['itemprop'].split()
+            for prop in props:
+                if prop not in properties:
+                    properties[prop] = []
+                properties[prop].extend(self._extract_property_value(node))
         return properties
 
-# http://www.whatwg.org/specs/web-apps/current-work/multipage/microdata.html#the-properties-of-an-item # noqa
+    # See SPEC#the-properties-of-an-item
     def _extract_propertynodes(self, node, memory=[]):
         propertynodes = []
         # If it's not a tag, it's not a propertynode
@@ -96,12 +103,14 @@ class Extractor(object):
         for child in node.children:
             if child in memory:  # Error, circular reference. Skip.
                 # TODO Log this error for user feedback
+                # FIXME SPEC#get-the-object @7.2 says this should generate
+                # the string "ERROR", but this is problematic.
                 continue
             memory.append(child)
             propertynodes.extend(self._extract_propertynodes(child, memory))
         return propertynodes
 
-# http://www.whatwg.org/specs/web-apps/current-work/multipage/microdata.html#concept-property-value # noqa
+    # See SPEC#concept-property-value
     def _extract_property_value(self, node):
         # FIXME URLs are supposed to be resolved (relative to base, etc)
         value_attr = \
@@ -130,4 +139,5 @@ class Extractor(object):
                 pass
         else:
             value = node.get_text()
-        return value
+        # NOTE Property values are always stored as arrays, per SPEC#json
+        return [value]
