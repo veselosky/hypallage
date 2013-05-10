@@ -17,16 +17,21 @@ except ImportError:  # python 2
 class Extractor(object):
     """HTML 5 microdata extractor"""
 
-    def __init__(self, url):
+    def __init__(self, extract_from):
         """Constructor takes a file path or URL"""
         self._items = None
-        if path.exists(url):
-            with open(url) as thefile:
+        if isinstance(extract_from, bs4.BeautifulSoup):
+            self.document = extract_from
+
+        elif path.exists(extract_from):
+            with open(extract_from) as thefile:
                 rawhtml = thefile.read()
+            self.document = bs(rawhtml)
+
         else:
-            with urlopen(url) as thefile:
+            with urlopen(extract_from) as thefile:
                 rawhtml = thefile.read()
-        self.document = bs(rawhtml)
+            self.document = bs(rawhtml)
 
     @property
     def items(self):
