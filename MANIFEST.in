@@ -1,0 +1,13 @@
+include LICENSE
+include README.rst
+include dev-requirements.txt
+include docs/Makefile
+include docs/conf.py
+include docs/index.rst
+include docs/make.bat
+include hypallage/__init__.py
+include hypallage/microdata.py
+include setup.py
+include tests/test_000.py
+include tox.ini
+recursive-include tests/data *.microdata *.html

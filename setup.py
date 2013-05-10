@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
+import os.path
 from hypallage import __version__
 
 
@@ -20,8 +21,8 @@ class PyTest(TestCommand):
         errno = pytest.main(self.test_args)
         sys.exit(errno)
 
-
-with open('README.rst') as thefile:
+readme = os.path.join(os.path.dirname(__file__), 'README.rst')
+with open(readme) as thefile:
     README = thefile.read()
 
 setup(
