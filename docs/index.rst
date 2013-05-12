@@ -10,7 +10,9 @@ Hypallage (high-PAL-luh-jee) is a set of tools for working with hypermedia APIs.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
+
+    microdata
 
 Indices and tables
 ==================

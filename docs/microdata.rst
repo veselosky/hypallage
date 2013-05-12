@@ -1,0 +1,4 @@
+
+.. automodule:: hypallage.microdata
+    :members:
+

@@ -1,5 +1,10 @@
 """
 .. module hypallage.microdata
+
+Microdata
+==========
+
+This module contains tools for working with HTML 5 microdata.
 """
 # NOTE The SPEC for HTML5 microdata lives at
 # http://www.whatwg.org/specs/web-apps/current-work/multipage/microdata.html
@@ -15,10 +20,13 @@ except ImportError:  # python 2
 
 
 class Extractor(object):
-    """HTML 5 microdata extractor"""
+    """
+    :param extract_from: file path, URL, or BeautifulSoup instance.
+
+    HTML 5 microdata extractor.
+    """
 
     def __init__(self, extract_from):
-        """Constructor takes a file path, URL, or BeautifulSoup instance."""
         self._items = None
         if isinstance(extract_from, bs4.BeautifulSoup):
             self.document = extract_from
@@ -44,10 +52,8 @@ class Extractor(object):
 
     def to_json(self, **kwargs):
         """
-        Returns a serialized JSON string.
-
-        The method accepts any key-word arguments accepted by
-        :py:`json.dumps`.
+        :returns: a serialized JSON string.
+        :param kwargs: any key-word arguments accepted by :py:func:`json.dumps`
 
         By default, behaves according to the HTML5 specification, returning
         the most compact form possible. To ease string comparisons, also
