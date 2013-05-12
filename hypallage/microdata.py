@@ -18,7 +18,7 @@ class Extractor(object):
     """HTML 5 microdata extractor"""
 
     def __init__(self, extract_from):
-        """Constructor takes a file path or URL"""
+        """Constructor takes a file path, URL, or BeautifulSoup instance."""
         self._items = None
         if isinstance(extract_from, bs4.BeautifulSoup):
             self.document = extract_from
@@ -35,11 +35,25 @@ class Extractor(object):
 
     @property
     def items(self):
+        """
+        A list of the extracted items.
+        """
         if self._items is None:
             self._items = self._extract_items()
         return self._items
 
     def to_json(self, **kwargs):
+        """
+        Returns a serialized JSON string.
+
+        The method accepts any key-word arguments accepted by
+        :py:`json.dumps`.
+
+        By default, behaves according to the HTML5 specification, returning
+        the most compact form possible. To ease string comparisons, also
+        returns the keys sorted. You can override these defaults by passing
+        kwargs.
+        """
         import json
         # To be compliant with SPEC#extracting-json, we must have no whitespace
         # between tokens by default. The default json separator includes
