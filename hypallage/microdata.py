@@ -39,6 +39,25 @@ class Extractor(object):
             self._items = self._extract_items()
         return self._items
 
+    def to_json(self, **kwargs):
+        import json
+        # To be compliant with SPEC#extracting-json, we must have no whitespace
+        # between tokens by default. The default json separator includes
+        # spaces, so we need to replace them. But the caller can override this
+        # if they don't care about the spec.
+        if 'separators' not in kwargs and 'indent' not in kwargs:
+            kwargs['separators'] = (',', ':')
+
+        # To ease comparisons, sort the keys by default. My reading of
+        # SPEC#extracting-json allows this, as order of properties is not
+        # specified.
+        if 'sort_keys' not in kwargs:
+            kwargs['sort_keys'] = True
+
+        # TODO Use our own JSONEncoder that knows how to deal with URLs and
+        # the various datetime types.
+        return json.dumps({'items': self.items}, **kwargs)
+
     def is_itemscope(self, node):
         return node.get('itemscope') is not None
 
