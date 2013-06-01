@@ -18,6 +18,8 @@ try:  # python 3
 except ImportError:  # python 2
     from urllib2 import urlopen
 
+from hypallage import util
+
 
 class Extractor(object):
     """
@@ -76,7 +78,9 @@ class Extractor(object):
 
         # TODO Use our own JSONEncoder that knows how to deal with URLs and
         # the various datetime types.
-        return json.dumps({'items': self.items}, **kwargs)
+        return json.dumps({'items': self.items},
+                          default=util.to_json,
+                          **kwargs)
 
     def is_itemscope(self, node):
         return node.get('itemscope') is not None
@@ -174,13 +178,19 @@ class Extractor(object):
                 'data': 'value',
                 'time': 'datetime',
             }
+        # If the node is an item, the value is the extracted item.
         if self.is_itemscope(node):
             value = self._extract_item(node)
+
+        # Normally the value is an attribute of the node, as defined in SPEC
         elif node.name in value_attr:
             value = node[value_attr[node.name]]
+            # These attributes are required to be URIs:
             if value_attr[node.name] in ['src', 'href']:
-                # TODO Resolve URL properly here
-                pass
+                # TODO Need a BASE to resolve URL properly here
+                value = util.URI(value)
+
+        # If none of that works, SPEC says extract the text
         else:
             value = node.get_text()
         # NOTE Property values are always stored as arrays, per SPEC#json
