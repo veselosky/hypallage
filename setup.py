@@ -4,6 +4,11 @@ import sys
 import os.path
 from hypallage import __version__
 
+# For python 2, must use dateutil 1.x
+dateutil = 'python-dateutil'
+if sys.version[0] == '2':
+    dateutil = 'python-dateutil >=1.5, <2.0'
+
 
 class PyTest(TestCommand):
     """Command class to allow `setup.py test` to run py.test.
@@ -39,6 +44,7 @@ setup(
 
     install_requires=[
         'beautifulsoup4',
+        dateutil
     ],
     tests_require=[
         'pytest',
