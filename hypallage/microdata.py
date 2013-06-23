@@ -18,6 +18,7 @@ try:  # python 3
 except ImportError:  # python 2
     from urllib2 import urlopen
 
+from dateutil.parser import parse as parse_date
 from hypallage import util
 
 
@@ -103,13 +104,15 @@ class Extractor(object):
         memory.append(itemnode)
         item = {}
         if itemnode.get('itemtype'):
-            item['type'] = itemnode.get('itemtype')
+            item['type'] = util.URI(itemnode.get('itemtype'))
         if itemnode.get('itemid'):
             item['id'] = itemnode.get('itemid')
-        item['properties'] = self._extract_properties(itemnode, memory)
+        item['properties'] = self._extract_properties(itemnode,
+                                                      memory,
+                                                      item.get('type'))
         return item
 
-    def _extract_properties(self, itemnode, memory):
+    def _extract_properties(self, itemnode, memory, itemtype=None):
         # NOTE: results are supposed to be sorted in tree order. If no itemref
         # exists to muddy the waters, a depth-first traversal accomplishes
         # this.  When there is an itemref, order cannot be assured, and the
@@ -131,7 +134,8 @@ class Extractor(object):
             for prop in props:
                 if prop not in properties:
                     properties[prop] = []
-                properties[prop].extend(self._extract_property_value(node))
+                properties[prop].extend(
+                    self._extract_property_value(node, itemtype))
         return properties
 
     # See SPEC#the-properties-of-an-item
@@ -159,7 +163,7 @@ class Extractor(object):
         return propertynodes
 
     # See SPEC#concept-property-value
-    def _extract_property_value(self, node):
+    def _extract_property_value(self, node, itemtype=None):
         # FIXME URLs are supposed to be resolved (relative to base, etc)
         value_attr = \
             {
@@ -185,10 +189,24 @@ class Extractor(object):
         # Normally the value is an attribute of the node, as defined in SPEC
         elif node.name in value_attr:
             value = node[value_attr[node.name]]
+
+            # Now translate to the correct data type.
             # These attributes are required to be URIs:
             if value_attr[node.name] in ['src', 'href']:
                 # TODO Need a BASE to resolve URL properly here
                 value = util.URI(value)
+
+            # time elements always represent a datetime
+            elif node.name == 'time':
+                value = parse_date(value)
+
+            # If the itemtype is defined by schema.org, lookup the specified
+            # type for the property.
+            elif itemtype and itemtype.startswith('http://schema.org/'):
+                from hypallage.schema import schema
+                schema_prop = schema['properties'].get(node.get('itemprop'))
+                if schema_prop and 'ranges' in schema_prop:
+                    schema_type = schema_prop['ranges']
 
         # If none of that works, SPEC says extract the text
         else:
