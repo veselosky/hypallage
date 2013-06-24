@@ -44,6 +44,24 @@ class Extractor(object):
                 rawhtml = thefile.read()
             self.document = bs(rawhtml)
 
+    value_attr = \
+        {
+            'meta': 'content',
+            'audio': 'src',
+            'embed': 'src',
+            'iframe': 'src',
+            'img': 'src',
+            'source': 'src',
+            'track': 'src',
+            'video': 'src',
+            'a': 'href',
+            'area': 'href',
+            'link': 'href',
+            'object': 'data',
+            'data': 'value',
+            'time': 'datetime',
+        }
+
     @property
     def items(self):
         """
@@ -164,52 +182,65 @@ class Extractor(object):
 
     # See SPEC#concept-property-value
     def _extract_property_value(self, node, itemtype=None):
-        # FIXME URLs are supposed to be resolved (relative to base, etc)
-        value_attr = \
-            {
-                'meta': 'content',
-                'audio': 'src',
-                'embed': 'src',
-                'iframe': 'src',
-                'img': 'src',
-                'source': 'src',
-                'track': 'src',
-                'video': 'src',
-                'a': 'href',
-                'area': 'href',
-                'link': 'href',
-                'object': 'data',
-                'data': 'value',
-                'time': 'datetime',
-            }
         # If the node is an item, the value is the extracted item.
         if self.is_itemscope(node):
             value = self._extract_item(node)
+            return value
 
         # Normally the value is an attribute of the node, as defined in SPEC
-        elif node.name in value_attr:
-            value = node[value_attr[node.name]]
-
-            # Now translate to the correct data type.
-            # These attributes are required to be URIs:
-            if value_attr[node.name] in ['src', 'href']:
-                # TODO Need a BASE to resolve URL properly here
-                value = util.URI(value)
-
-            # time elements always represent a datetime
-            elif node.name == 'time':
-                value = parse_date(value)
-
-            # If the itemtype is defined by schema.org, lookup the specified
-            # type for the property.
-            elif itemtype and itemtype.startswith('http://schema.org/'):
-                from hypallage.schema import schema
-                schema_prop = schema['properties'].get(node.get('itemprop'))
-                if schema_prop and 'ranges' in schema_prop:
-                    schema_type = schema_prop['ranges']
+        elif node.name in self.value_attr:
+            value = node[self.value_attr[node.name]]
 
         # If none of that works, SPEC says extract the text
         else:
             value = node.get_text()
+
+        # Now translate to the correct data type.
+        value_type = self._detect_type(node, itemtype)
+        value = self.to_python_type(value, value_type)
+
         # NOTE Property values are always stored as arrays, per SPEC#json
         return [value]
+
+    def _detect_type(self, node, itemtype=None):
+        # These attributes are required to be URIs:
+        detected_type = None
+        if node.name in self.value_attr \
+                and self.value_attr[node.name] in ['src', 'href']:
+            detected_type = [util.URI('URI')]
+
+        # time elements always represent a datetime
+        elif node.name == 'time':
+            detected_type = [util.URI('DateTime'),
+                             util.URI('Date'),
+                             util.URI('Time')]
+
+        # If the itemtype is defined by schema.org, lookup the specified
+        # type for the property.
+        elif itemtype and itemtype.startswith('http://schema.org/'):
+            from hypallage.schema import schema
+            schema_prop = schema['properties'].get(node.get('itemprop'))
+            if schema_prop and 'ranges' in schema_prop:
+                detected_type = schema_prop['ranges']
+
+        elif 'data-type' in node:
+            detected_type = [node['data-type']]  # only one supported for now
+
+        return detected_type
+
+    def to_python_type(self, value, value_type):
+        # value_type is a list of possible types. Attempt conversion in order.
+
+        if not value_type:
+            return value
+        return value
+
+        for possible_type in value_type:
+            # FIXME This is sloppy, but for now assume base is schema.org
+            if possible_type.path in util.schema_convert:
+                new_value = util.schema_convert[possible_type.path](value)
+            if new_value:
+                break
+
+        return new_value
+
