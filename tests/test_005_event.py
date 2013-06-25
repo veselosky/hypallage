@@ -53,7 +53,7 @@ def test_03_offers(doc):
     offer = article['properties']['offers'][0]
     assert offer["type"] == "http://schema.org/AggregateOffer"
     assert offer["properties"]["lowPrice"] == ["$35"]
-    assert offer["properties"]["offerCount"] == [1934]
+    assert offer["properties"]["offerCount"] == [1938]
 
 
 def test_04_startdate(doc):

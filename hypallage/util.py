@@ -7,6 +7,9 @@ try:  # python 3
 except ImportError:  # python 2
     import urlparse
 
+import datetime
+import re
+
 
 class URI(str):
     """
@@ -61,7 +64,10 @@ def to_json(o):
     """
     if isinstance(o, URI):
         return o.normalized()
+    elif isinstance(o, datetime.datetime) or isinstance(o, datetime.date):
+        return o.isoformat()
     else:
+        print( type(o) )
         raise TypeError
 
 
@@ -76,5 +82,18 @@ def str_to_uri(value):
     return URI(value)
 
 
-schema_convert = {'Integer': str_to_int, 'URI': str_to_uri}
+def str_to_date(value):
+    vals = [int(val) for val in re.split(r'\D', value)]
+    return datetime.datetime(*vals).date()
+
+
+def str_to_datetime(value):
+    vals = [int(val) for val in re.split(r'\D', value)]
+    return datetime.datetime(*vals)
+
+
+schema_convert = {'Integer': str_to_int,
+                  'URI': str_to_uri,
+                  'Date': str_to_date,
+                  'Datetime': str_to_datetime}
 

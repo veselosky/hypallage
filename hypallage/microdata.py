@@ -18,7 +18,6 @@ try:  # python 3
 except ImportError:  # python 2
     from urllib2 import urlopen
 
-from dateutil.parser import parse as parse_date
 from hypallage import util
 
 
@@ -185,7 +184,8 @@ class Extractor(object):
         # If the node is an item, the value is the extracted item.
         if self.is_itemscope(node):
             value = self._extract_item(node)
-            return value
+            # print("Found sub-item %s" % value)
+            return [value]
 
         # Normally the value is an attribute of the node, as defined in SPEC
         elif node.name in self.value_attr:
@@ -197,6 +197,7 @@ class Extractor(object):
 
         # Now translate to the correct data type.
         value_type = self._detect_type(node, itemtype)
+        # print("Detected type %s for value %s" % (value_type, value))
         value = self.to_python_type(value, value_type)
 
         # NOTE Property values are always stored as arrays, per SPEC#json
@@ -221,7 +222,7 @@ class Extractor(object):
             from hypallage.schema import schema
             schema_prop = schema['properties'].get(node.get('itemprop'))
             if schema_prop and 'ranges' in schema_prop:
-                detected_type = schema_prop['ranges']
+                detected_type = [util.URI(x) for x in schema_prop['ranges']]
 
         elif 'data-type' in node:
             detected_type = [node['data-type']]  # only one supported for now
@@ -230,10 +231,10 @@ class Extractor(object):
 
     def to_python_type(self, value, value_type):
         # value_type is a list of possible types. Attempt conversion in order.
-
         if not value_type:
             return value
-        return value
+
+        new_value = None
 
         for possible_type in value_type:
             # FIXME This is sloppy, but for now assume base is schema.org
@@ -242,5 +243,5 @@ class Extractor(object):
             if new_value:
                 break
 
-        return new_value
+        return new_value or value
 

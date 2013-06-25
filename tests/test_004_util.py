@@ -19,3 +19,12 @@ def test_01_relative_uri_no_base():
     assert isinstance(uri, util.URI)
     assert uri == 'filename.html'
     assert uri == util.URI('filename.html')
+    assert uri.path == 'filename.html'
+
+
+def test_02_str_to_uri():
+    uri = util.schema_convert['URI']('filename.html')
+    assert isinstance(uri, util.URI)
+    assert uri == 'filename.html'
+    assert uri == util.URI('filename.html')
+
